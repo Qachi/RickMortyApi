@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DesignSurface">
+    <option name="filePathToZoomLevelMap">
+      <map>
+        <entry key="..\:/Users/onyedikachi.akachukw/AndroidStudioProjects/RickandMortyApi/app/src/main/res/layout/activity_character_details.xml" value="0.22826086956521738" />
+        <entry key="..\:/Users/onyedikachi.akachukw/AndroidStudioProjects/RickandMortyApi/app/src/main/res/layout/activity_details_main.xml" value="0.2259963768115942" />
+        <entry key="..\:/Users/onyedikachi.akachukw/AndroidStudioProjects/RickandMortyApi/app/src/main/res/layout/activity_main.xml" value="0.22826086956521738" />
+        <entry key="..\:/Users/onyedikachi.akachukw/AndroidStudioProjects/RickandMortyApi/app/src/main/res/layout/activity_revision_main.xml" value="0.1" />
+        <entry key="..\:/Users/onyedikachi.akachukw/AndroidStudioProjects/RickandMortyApi/app/src/main/res/layout/item_list.xml" value="0.22826086956521738" />
+        <entry key="..\:/Users/onyedikachi.akachukw/AndroidStudioProjects/RickandMortyApi/app/src/main/res/menu/menu_fragment.xml" value="0.259375" />
+      </map>
+    </option>
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" project-jdk-name="1.8 (9)" project-jdk-type="JavaSDK">
+    <output url="file://$PROJECT_DIR$/build/classes" />
+  </component>
+  <component name="ProjectType">
+    <option name="id" value="Android" />
+  </component>
+</project>

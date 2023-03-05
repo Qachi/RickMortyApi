@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Rick and Morty Api</string>
+    <string name="createdTxt">TEXTVIEW</string>
+    <string name="locationTxt">TEXTVIEW</string>
+    <string name="originTxt">TEXTVIEW</string>
+    <string name="genderTxt">TEXTVIEW</string>
+    <string name="speciesTxt">TEXTVIEW</string>
+    <string name="nameTxt">TEXTVIEW</string>
+</resources>
