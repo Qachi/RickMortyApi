@@ -3,7 +3,10 @@ package com.example.rickandmortyapi.di
 import android.content.Context
 import androidx.room.Room
 import com.example.rickandmortyapi.api.RickMortyApi
+import com.example.rickandmortyapi.dao.RickMortyDao
 import com.example.rickandmortyapi.database.RickMortyDatabase
+import com.example.rickandmortyapi.repositories.RickMortyRepository
+import com.example.rickandmortyapi.repositories.RickMortyRepositoryImpl
 import com.example.rickandmortyapi.util.Constants
 import dagger.Module
 import dagger.Provides
@@ -35,16 +38,32 @@ object RickMortyModule {
             .client(client)
             .build()
 
-
     @[Singleton Provides]
     fun provideRickMortyAPi(retrofit: Retrofit): RickMortyApi =
         retrofit.create(RickMortyApi::class.java)
 
-
     @[Singleton Provides]
     fun provideRickMortyDataBase(@ApplicationContext context: Context): RickMortyDatabase =
-        Room.databaseBuilder(context, RickMortyDatabase::class.java, "character_database")
+        Room.databaseBuilder(
+            context,
+            RickMortyDatabase::class.java,
+            Constants.DATABASE_NAME
+        )
             .fallbackToDestructiveMigration()
             .build()
 
+    @[Singleton Provides]
+    fun provideRickMortyRepositoryImpl(
+        rickMortyDao: RickMortyDao,
+        rickMortyApi: RickMortyApi,
+        rickMortyDatabase: RickMortyDatabase
+    ) = RickMortyRepositoryImpl(
+        rickMortyDao,
+        rickMortyApi,
+        rickMortyDatabase
+    ) as RickMortyRepository
+
+    @[Singleton Provides]
+    fun provideRickyMortyDao(rickMortyDatabase: RickMortyDatabase): RickMortyDao =
+        rickMortyDatabase.getRickMortyDao()
 }
