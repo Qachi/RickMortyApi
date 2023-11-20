@@ -17,5 +17,4 @@ interface RickyMortyRemoteKeyDao {
 
     @Query("DELETE FROM CharactersResponseRemoteKey")
     suspend fun deleteCharacter()
-
 }

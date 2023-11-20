@@ -14,7 +14,8 @@ import java.io.InvalidObjectException
 class RickyMortyRemoteMediator(
     private val rickMortyApi: RickMortyApi,
     private val rickyMortyDatabase: RickMortyDatabase,
-    private val initialPage: Int = 1
+    private val initialPage: Int = 1,
+    private val name: String = "Rick"
 ) : RemoteMediator<Int, CharactersResponseEntity>() {
 
     override suspend fun initialize(): InitializeAction {
@@ -25,10 +26,7 @@ class RickyMortyRemoteMediator(
         loadType: LoadType,
         state: PagingState<Int, CharactersResponseEntity>
     ): MediatorResult {
-
-
         return try {
-
             val page = when (loadType) {
                 LoadType.APPEND -> {
                     val remoteKey = getLastRemoteKey(state)
@@ -44,9 +42,8 @@ class RickyMortyRemoteMediator(
                     val remoteKey = getClosestRemoteKey(state)
                     remoteKey?.next?.minus(1) ?: initialPage
                 }
-
             }
-            val response = rickMortyApi.getCharacters(page)
+            val response = rickMortyApi.getCharacters(name, page)
             val endOfPagination = response.body()?.results?.size!! < state.config.pageSize
 
             if (response.isSuccessful) {
@@ -61,7 +58,6 @@ class RickyMortyRemoteMediator(
 
                     val list = response.body()?.results?.map {
                         CharactersResponseRemoteKey(it.id, prev, next)
-
                     }
                     if (list != null) {
                         rickyMortyDatabase.getRickMortyDao()
@@ -78,12 +74,10 @@ class RickyMortyRemoteMediator(
             } else {
                 MediatorResult.Success(endOfPaginationReached = true)
             }
-
         } catch (e: Exception) {
             MediatorResult.Error(e)
         }
     }
-
 
     private suspend fun getClosestRemoteKey(state: PagingState<Int, CharactersResponseEntity>): CharactersResponseRemoteKey? {
         return state.anchorPosition?.let { it ->

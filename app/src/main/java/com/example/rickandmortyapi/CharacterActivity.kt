@@ -15,13 +15,13 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.rickandmortyapi.adapter.CharacterAdapter
+import com.example.rickandmortyapi.databinding.ActivityCharacterBinding
 import com.example.rickandmortyapi.event.CharacterListEvent
 import com.example.rickandmortyapi.model.Character
 import com.example.rickandmortyapi.util.onQueryTextChanged
 import com.example.rickandmortyapi.viewmodel.CharacterViewModel
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 
@@ -30,18 +30,19 @@ class CharacterActivity : AppCompatActivity(), CharacterAdapter.OnCharacterClick
 
     private val viewModel by viewModels<CharacterViewModel>()
     private val myAdapter by lazy { CharacterAdapter(this) }
+    private lateinit var binding: ActivityCharacterBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = ActivityCharacterBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
 
         networkConnection()
-
     }
 
-
     private fun setUpRecyclerView() {
-        recyclerView.apply {
+        binding.recyclerView.apply {
             adapter = myAdapter
             layoutManager =
                 LinearLayoutManager(this@CharacterActivity, LinearLayoutManager.VERTICAL, false)
@@ -56,7 +57,6 @@ class CharacterActivity : AppCompatActivity(), CharacterAdapter.OnCharacterClick
                 networkConnection()
             }.collectLatest {
                 myAdapter.submitData(it)
-
             }
         }
     }
@@ -69,15 +69,11 @@ class CharacterActivity : AppCompatActivity(), CharacterAdapter.OnCharacterClick
         if (isConnected) {
             setUpRecyclerView()
             initViewModel()
-
         } else {
-
             setUpRecyclerView()
             initViewModel()
             snackBar()
-
         }
-
     }
 
     private fun snackBar() {
@@ -95,26 +91,22 @@ class CharacterActivity : AppCompatActivity(), CharacterAdapter.OnCharacterClick
         val textView = snackBarView.findViewById(R.id.snackbar_text) as TextView
         textView.setTextColor(Color.WHITE)
         snackBar.show()
-
     }
 
     override fun itemClicked(character: Character, position: Int) {
         val intent = Intent(this, CharacterDetailsActivity::class.java)
         intent.putExtra("CHARACTERS", character.id)
         startActivity(intent)
-
     }
 
-    override  fun onCreateOptionsMenu(menu: Menu?): Boolean {
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_fragment, menu)
         val searchItem = menu?.findItem(R.id.search_View)
         val searchView = searchItem?.actionView as SearchView
         searchView.queryHint = "Type a character name"
-
         searchView.onQueryTextChanged {
             performSearchEvent(it)
         }
-
         super.onCreateOptionsMenu(menu)
         return true
     }
@@ -122,6 +114,5 @@ class CharacterActivity : AppCompatActivity(), CharacterAdapter.OnCharacterClick
     private fun performSearchEvent(characterName: String) {
         viewModel.onEvent(CharacterListEvent.GetAllCharactersByName(characterName))
     }
-
 }
 

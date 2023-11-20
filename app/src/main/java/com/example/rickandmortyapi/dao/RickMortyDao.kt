@@ -8,7 +8,7 @@ import androidx.room.Query
 import com.example.rickandmortyapi.model.CharactersResponseEntity
 
 @Dao
-interface RickyMortyDao {
+interface RickMortyDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertCharacters(list: List<CharactersResponseEntity>)
@@ -21,9 +21,9 @@ interface RickyMortyDao {
 
     @Query("SELECT * FROM characters_table WHERE id == :id LIMIT 1")
     fun getCharacter(id: Int): CharactersResponseEntity?
+    @Query("SELECT * FROM characters_table WHERE id == :id LIMIT 1")
+    fun getCharacterById(id: Int): CharactersResponseEntity?
 
     @Query("DELETE FROM characters_table")
     suspend fun deleteCharacters()
-
-
 }

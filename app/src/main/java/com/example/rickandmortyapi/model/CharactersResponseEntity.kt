@@ -2,8 +2,6 @@ package com.example.rickandmortyapi.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-
-
 @Entity(tableName = "characters_table")
 data class CharactersResponseEntity(
     @PrimaryKey(autoGenerate = false) val id: Int,
@@ -14,7 +12,6 @@ data class CharactersResponseEntity(
     val location: String,
     val image: String,
     val created: String,
-
     ) {
     fun toCharacter() = Character(
         id = id,
@@ -25,6 +22,5 @@ data class CharactersResponseEntity(
         location = location,
         image = image,
         created = created,
-
         )
 }

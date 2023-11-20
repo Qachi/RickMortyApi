@@ -12,6 +12,5 @@ inline fun SearchView.onQueryTextChanged(crossinline listener: (String) -> Unit)
             listener(newText.orEmpty())
             return true
         }
-
     })
 }

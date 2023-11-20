@@ -4,10 +4,10 @@ import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import com.example.rickandmortyapi.databinding.ActivityCharacterDetailsBinding
 import com.example.rickandmortyapi.viewmodel.CharacterIdViewModel
 import com.squareup.picasso.Picasso
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.android.synthetic.main.activity_character_details.*
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 
@@ -16,13 +16,15 @@ class CharacterDetailsActivity : AppCompatActivity() {
 
     private val viewModel by viewModels<CharacterIdViewModel>()
     private val id by lazy { intent.extras!!.getInt("CHARACTERS") }
+    private lateinit var binding: ActivityCharacterDetailsBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_character_details)
+        binding =  ActivityCharacterDetailsBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
 
         initViewModel()
-
     }
 
     private fun initViewModel() {
@@ -31,32 +33,25 @@ class CharacterDetailsActivity : AppCompatActivity() {
             viewModel.getCharacterById(id).catch {
 
             }.collectLatest {
-                nameTxt.text = it.name
-                speciesTxt.text = it.species
-                genderTxt.text = it.gender
-                originTxt.text = it.origin
-                locationTxt.text = it.location
-                createdTxt.text = it.created
-                Picasso.get().load(it.image).into(userAvatar)
+                binding.nameTxt.text = it.name
+                binding.speciesTxt.text = it.species
+                binding.genderTxt.text = it.gender
+                binding.originTxt.text = it.origin
+                binding.locationTxt.text = it.location
+                binding.createdTxt.text = it.created
+                Picasso.get().load(it.image).into(binding.userAvatar)
                 supportActionBar?.title = it.name
-
             }
 
         }
     }
-
     private fun setActionBar() {
         supportActionBar?.apply {
             setDisplayHomeAsUpEnabled(true)
         }
-
     }
-
     override fun onSupportNavigateUp(): Boolean {
         onBackPressed()
         return true
     }
-
 }
-
-
