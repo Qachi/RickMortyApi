@@ -5,7 +5,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.example.rickandmortyapi.databinding.ActivityCharacterDetailsBinding
-import com.example.rickandmortyapi.viewmodel.CharacterIdViewModel
+import com.example.rickandmortyapi.viewmodel.CharacterDetailsViewModel
 import com.squareup.picasso.Picasso
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.catch
@@ -14,13 +14,13 @@ import kotlinx.coroutines.flow.collectLatest
 @AndroidEntryPoint
 class CharacterDetailsActivity : AppCompatActivity() {
 
-    private val viewModel by viewModels<CharacterIdViewModel>()
-    private val id by lazy { intent.extras!!.getInt("CHARACTERS") }
+    private val viewModel by viewModels<CharacterDetailsViewModel>()
+    private val id by lazy { intent.extras!!.getInt("CHARACTERS") } //Extract as constant
     private lateinit var binding: ActivityCharacterDetailsBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding =  ActivityCharacterDetailsBinding.inflate(layoutInflater)
+        binding = ActivityCharacterDetailsBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
 
@@ -45,11 +45,13 @@ class CharacterDetailsActivity : AppCompatActivity() {
 
         }
     }
+
     private fun setActionBar() {
         supportActionBar?.apply {
             setDisplayHomeAsUpEnabled(true)
         }
     }
+
     override fun onSupportNavigateUp(): Boolean {
         onBackPressed()
         return true

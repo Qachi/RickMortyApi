@@ -11,12 +11,10 @@ interface RickMortyApi {
 
     @GET("character")
     suspend fun getCharacters(
-        @Query("name")name : String,
+        @Query("name") name: String,
         @Query("page") page: Int
     ): Response<CharactersResponseDto>
 
     @GET("character/{id}")
     suspend fun getCharacterById(@Path("id") id: Int): Response<CharactersResponseEntity>
-
-
 }

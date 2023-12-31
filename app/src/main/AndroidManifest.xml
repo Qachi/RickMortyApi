@@ -13,12 +13,12 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-<!--        <activity-->
-<!--            android:name=".viewmodel.DetailsMainActivity"-->
-<!--            android:exported="false" />-->
-<!--        <activity-->
-<!--            android:name=".RevisionMainActivity"-->
-<!--            android:exported="false" />-->
+        <!--        <activity-->
+        <!--            android:name=".viewmodel.DetailsMainActivity"-->
+        <!--            android:exported="false" />-->
+        <!--        <activity-->
+        <!--            android:name=".RevisionMainActivity"-->
+        <!--            android:exported="false" />-->
         <activity android:name=".CharacterDetailsActivity" />
         <activity
             android:name=".CharacterActivity"

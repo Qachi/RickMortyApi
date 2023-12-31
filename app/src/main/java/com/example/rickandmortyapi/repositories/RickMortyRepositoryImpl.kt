@@ -1,6 +1,10 @@
 package com.example.rickandmortyapi.repositories
 
-import androidx.paging.*
+import androidx.paging.ExperimentalPagingApi
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.map
 import com.example.rickandmortyapi.api.RickMortyApi
 import com.example.rickandmortyapi.dao.RickMortyDao
 import com.example.rickandmortyapi.database.RickMortyDatabase
@@ -10,7 +14,10 @@ import com.example.rickandmortyapi.model.CharactersResponseEntity
 import com.example.rickandmortyapi.remote.RickyMortyRemoteMediator
 import com.example.rickandmortyapi.util.Resource
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 @OptIn(ExperimentalPagingApi::class)
@@ -34,10 +41,12 @@ class RickMortyRepositoryImpl @Inject constructor(
             remoteMediator = RickyMortyRemoteMediator(
                 rickMortyApi,
                 rickMortyDatabase,
-                1),
+                1,
+                characterName
+            ),
             pagingSourceFactory = rickMortyPagingSource
-        ).flow.map { CharacterEntityPagingData ->
-            CharacterEntityPagingData.map { characterEntity ->
+        ).flow.map { characterEntityPagingData ->
+            characterEntityPagingData.map { characterEntity ->
                 characterEntity.toCharacter()
             }
         }
@@ -61,6 +70,7 @@ class RickMortyRepositoryImpl @Inject constructor(
             Resource.error("Couldn't reach the server. Check your internet connection", null)
         }
     }
+
     override fun getCharacterById(id: Int): Resource<CharactersResponseEntity> {
         val character = rickMortyDao.getCharacterById(id)
         return if (character != null) {

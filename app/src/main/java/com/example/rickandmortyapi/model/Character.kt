@@ -2,6 +2,7 @@ package com.example.rickandmortyapi.model
 
 import android.os.Parcelable
 import kotlinx.android.parcel.Parcelize
+
 @Parcelize
 data class Character(
     val id: Int,

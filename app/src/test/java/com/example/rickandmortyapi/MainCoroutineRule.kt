@@ -1,7 +1,6 @@
 package com.example.rickandmortyapi
 
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestCoroutineDispatcher
@@ -12,7 +11,8 @@ import org.junit.rules.TestWatcher
 import org.junit.runner.Description
 
 @ExperimentalCoroutinesApi
-class MainCoroutineRule(private val dispatcher: CoroutineDispatcher = TestCoroutineDispatcher()) : TestWatcher(),
+class MainCoroutineRule(private val dispatcher: CoroutineDispatcher = TestCoroutineDispatcher()) :
+    TestWatcher(),
     TestCoroutineScope by TestCoroutineScope(dispatcher) {
 
     override fun starting(description: Description) {

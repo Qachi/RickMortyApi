@@ -44,9 +44,11 @@ object RickMortyModule {
 
     @[Singleton Provides]
     fun provideRickMortyDataBase(@ApplicationContext context: Context): RickMortyDatabase =
-        Room.databaseBuilder(context,
+        Room.databaseBuilder(
+            context,
             RickMortyDatabase::class.java,
-            Constants.DATABASE_NAME)
+            Constants.DATABASE_NAME
+        )
             .fallbackToDestructiveMigration()
             .build()
 

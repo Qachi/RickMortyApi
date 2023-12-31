@@ -2,7 +2,6 @@ package com.example.rickandmortyapi.dao
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.paging.PagingSource
-import androidx.test.filters.SmallTest
 import com.example.rickandmortyapi.database.RickMortyDatabase
 import com.example.rickandmortyapi.model.CharactersResponseEntity
 import dagger.hilt.android.testing.HiltAndroidRule
@@ -18,7 +17,6 @@ import org.junit.Test
 import javax.inject.Inject
 import javax.inject.Named
 
-@SmallTest
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
 class RickMortyDaoTest {
@@ -140,7 +138,7 @@ class RickMortyDaoTest {
     fun getCharactersByName3() = runTest {
         val pageSize = 1
         val characterName = "Rick"
-         val charactersResponseEntity = CharactersResponseEntity(
+        val charactersResponseEntity = CharactersResponseEntity(
             id = 1,
             name = "Rick",
             species = "Human",

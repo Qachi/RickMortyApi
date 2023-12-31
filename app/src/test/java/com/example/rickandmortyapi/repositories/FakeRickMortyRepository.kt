@@ -1,6 +1,11 @@
 package com.example.rickandmortyapi.repositories
 
-import androidx.paging.*
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.PagingSource
+import androidx.paging.PagingState
+import androidx.paging.map
 import com.example.rickandmortyapi.model.Character
 import com.example.rickandmortyapi.model.CharactersResponseDto
 import com.example.rickandmortyapi.model.CharactersResponseEntity
@@ -56,8 +61,8 @@ class FakeRickMortyRepository : RickMortyRepository {
         return Pager(
             config = PagingConfig(pageSize = 10, prefetchDistance = 5),
             pagingSourceFactory = { pagingSource }
-        ).flow.map { CharacterEntityPagingData ->
-            CharacterEntityPagingData.map { characterEntity ->
+        ).flow.map { characterEntityPagingData ->
+            characterEntityPagingData.map { characterEntity ->
                 characterEntity.toCharacter()
             }
         }
@@ -74,12 +79,17 @@ class FakeRickMortyRepository : RickMortyRepository {
             return if (characters.isEmpty()) {
                 Resource.error("No characters found", null)
             } else {
-                Resource.success(CharactersResponseDto(
-                    info = InfoDto(0,
-                    0,
-                    null,
-                    null),
-                    listOf()))
+                Resource.success(
+                    CharactersResponseDto(
+                        info = InfoDto(
+                            0,
+                            0,
+                            null,
+                            null
+                        ),
+                        listOf()
+                    )
+                )
             }
         }
     }

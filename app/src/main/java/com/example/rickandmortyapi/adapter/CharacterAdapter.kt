@@ -12,6 +12,7 @@ import com.squareup.picasso.Picasso
 class CharacterAdapter(
     private val clickListener: OnCharacterClickListener
 ) : PagingDataAdapter<Character, CharacterAdapter.MyViewHolder>(diffUtil) {
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
         val binding = ItemListBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return MyViewHolder(binding)

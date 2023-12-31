@@ -6,8 +6,8 @@ import androidx.paging.PagingState
 import androidx.paging.RemoteMediator
 import com.example.rickandmortyapi.api.RickMortyApi
 import com.example.rickandmortyapi.database.RickMortyDatabase
-import com.example.rickandmortyapi.model.CharactersResponseRemoteKey
 import com.example.rickandmortyapi.model.CharactersResponseEntity
+import com.example.rickandmortyapi.model.CharactersResponseRemoteKey
 import java.io.InvalidObjectException
 
 @OptIn(ExperimentalPagingApi::class)
@@ -15,7 +15,7 @@ class RickyMortyRemoteMediator(
     private val rickMortyApi: RickMortyApi,
     private val rickyMortyDatabase: RickMortyDatabase,
     private val initialPage: Int = 1,
-    private val name: String = "Rick"
+    private val name: String
 ) : RemoteMediator<Int, CharactersResponseEntity>() {
 
     override suspend fun initialize(): InitializeAction {
@@ -33,11 +33,13 @@ class RickyMortyRemoteMediator(
                         ?: throw InvalidObjectException("InvalidObjectException")
                     remoteKey.next ?: return MediatorResult.Success(endOfPaginationReached = true)
                 }
+
                 LoadType.PREPEND -> {
                     val remoteKey = getFirstRemoteKey(state)
                         ?: throw InvalidObjectException("InvalidObjectException")
                     remoteKey.prev ?: return MediatorResult.Success(endOfPaginationReached = true)
                 }
+
                 LoadType.REFRESH -> {
                     val remoteKey = getClosestRemoteKey(state)
                     remoteKey?.next?.minus(1) ?: initialPage

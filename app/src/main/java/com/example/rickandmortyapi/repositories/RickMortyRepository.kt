@@ -13,9 +13,9 @@ interface RickMortyRepository {
 
     suspend fun deleteCharacters()
 
-    suspend fun getCharacterByName(characterName: String):Flow<PagingData<Character>>
+    suspend fun getCharacterByName(characterName: String): Flow<PagingData<Character>>
 
-      suspend fun getCharacters(imageQuery: String, page: Int): Resource<CharactersResponseDto>
+    suspend fun getCharacters(imageQuery: String, page: Int): Resource<CharactersResponseDto>
 
-      fun getCharacterById(id: Int): Resource<CharactersResponseEntity>
+    fun getCharacterById(id: Int): Resource<CharactersResponseEntity>
 }

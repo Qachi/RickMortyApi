@@ -101,6 +101,7 @@ android {
 
         // paging 3
         implementation "androidx.paging:paging-runtime-ktx:3.2.1"
+        implementation "androidx.paging:paging-testing:3.2.1"
 
         implementation "com.squareup.okhttp3:logging-interceptor:4.10.0"
 

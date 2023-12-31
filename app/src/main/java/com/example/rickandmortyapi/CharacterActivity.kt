@@ -38,7 +38,7 @@ class CharacterActivity : AppCompatActivity(), CharacterAdapter.OnCharacterClick
         val view = binding.root
         setContentView(view)
 
-        networkConnection()
+        showNetworkErrorIfRequired()
     }
 
     private fun setUpRecyclerView() {
@@ -54,14 +54,15 @@ class CharacterActivity : AppCompatActivity(), CharacterAdapter.OnCharacterClick
     private fun initViewModel() {
         lifecycleScope.launchWhenCreated {
             viewModel.charactersFlow.catch {
-                networkConnection()
+                showNetworkErrorIfRequired()
             }.collectLatest {
                 myAdapter.submitData(it)
             }
         }
     }
 
-    private fun networkConnection() {
+    // Try to keep logic outside main activity
+    private fun showNetworkErrorIfRequired() {
         val connectionManager = this.getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
         val activeNetwork: NetworkInfo? = connectionManager.activeNetworkInfo
         val isConnected: Boolean = activeNetwork?.isConnectedOrConnecting == true
@@ -79,10 +80,10 @@ class CharacterActivity : AppCompatActivity(), CharacterAdapter.OnCharacterClick
     private fun snackBar() {
         val snackBar = Snackbar.make(
             findViewById(R.id.frameLayout),
-            "PlEASE CHECK NETWORK CONNECTION",
+            "PlEASE CHECK NETWORK CONNECTION", // Extract as string resource
             Toast.LENGTH_SHORT
         )
-            .setAction("Ok") {
+            .setAction("Ok") {// Extract as string resource
 
             }
             .setActionTextColor(Color.WHITE)
@@ -95,7 +96,7 @@ class CharacterActivity : AppCompatActivity(), CharacterAdapter.OnCharacterClick
 
     override fun itemClicked(character: Character, position: Int) {
         val intent = Intent(this, CharacterDetailsActivity::class.java)
-        intent.putExtra("CHARACTERS", character.id)
+        intent.putExtra(EXTRA_CHARACTERS, character.id)
         startActivity(intent)
     }
 
@@ -103,7 +104,7 @@ class CharacterActivity : AppCompatActivity(), CharacterAdapter.OnCharacterClick
         menuInflater.inflate(R.menu.menu_fragment, menu)
         val searchItem = menu?.findItem(R.id.search_View)
         val searchView = searchItem?.actionView as SearchView
-        searchView.queryHint = "Type a character name"
+        searchView.queryHint = "Type a character name" // Extract as string resource
         searchView.onQueryTextChanged {
             performSearchEvent(it)
         }
@@ -113,6 +114,10 @@ class CharacterActivity : AppCompatActivity(), CharacterAdapter.OnCharacterClick
 
     private fun performSearchEvent(characterName: String) {
         viewModel.onEvent(CharacterListEvent.GetAllCharactersByName(characterName))
+    }
+
+    companion object {
+        private const val EXTRA_CHARACTERS = "CHARACTERS"
     }
 }
 

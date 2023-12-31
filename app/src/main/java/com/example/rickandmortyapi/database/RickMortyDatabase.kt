@@ -7,10 +7,12 @@ import com.example.rickandmortyapi.dao.RickyMortyRemoteKeyDao
 import com.example.rickandmortyapi.model.CharactersResponseEntity
 import com.example.rickandmortyapi.model.CharactersResponseRemoteKey
 
-@Database(entities = [CharactersResponseEntity::class,
-    CharactersResponseRemoteKey::class],
+@Database(
+    entities = [CharactersResponseEntity::class,
+        CharactersResponseRemoteKey::class],
     version = 6,
-    exportSchema = false)
+    exportSchema = false
+)
 
 abstract class RickMortyDatabase : RoomDatabase() {
 

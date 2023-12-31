@@ -21,6 +21,7 @@ interface RickMortyDao {
 
     @Query("SELECT * FROM characters_table WHERE id == :id LIMIT 1")
     fun getCharacter(id: Int): CharactersResponseEntity?
+
     @Query("SELECT * FROM characters_table WHERE id == :id LIMIT 1")
     fun getCharacterById(id: Int): CharactersResponseEntity?
 

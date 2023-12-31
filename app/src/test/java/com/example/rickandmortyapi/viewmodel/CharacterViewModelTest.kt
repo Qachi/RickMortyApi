@@ -1,22 +1,30 @@
 package com.example.rickandmortyapi.viewmodel
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import androidx.paging.testing.asSnapshot
 import com.example.rickandmortyapi.MainCoroutineRule
+import com.example.rickandmortyapi.event.CharacterListEvent
 import com.example.rickandmortyapi.model.CharactersResponseEntity
 import com.example.rickandmortyapi.repositories.FakeRickMortyRepository
 import com.example.rickandmortyapi.util.Status
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.test.runTest
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
 @ExperimentalCoroutinesApi
 class CharacterViewModelTest {
+
+    // 1. All character fetched if search query is empty
+    // 2. Characters with name is fetched if search query is passed
 
     @get:Rule
     var instantTaskExecutorRule = InstantTaskExecutorRule()
@@ -176,12 +184,8 @@ class CharacterViewModelTest {
 
         // Insert a character with a different name
         sut.insertCharacterIntoDB(character2)
-        sut.getCharactersByName(characterName)
-
-        // Retrieve the characters from the ViewModel's charactersFlow
-        val characters = sut.charactersFlow.toList()
 
         // Assert that characters contain expected items
-        assertTrue(characters.isNotEmpty())
+        assertEquals(expected, character3)
     }
 }

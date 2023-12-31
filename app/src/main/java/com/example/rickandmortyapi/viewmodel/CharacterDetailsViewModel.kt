@@ -8,8 +8,9 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
-class CharacterIdViewModel @Inject constructor(private val rickMortyRepository: RickMortyRepositoryImpl) :
-    ViewModel() {
+class CharacterDetailsViewModel @Inject constructor(
+    private val rickMortyRepository: RickMortyRepositoryImpl
+) : ViewModel() {
 
     suspend fun getCharacterById(id: Int) = withContext(Dispatchers.IO) {
         rickMortyRepository.getCharacter(id)
