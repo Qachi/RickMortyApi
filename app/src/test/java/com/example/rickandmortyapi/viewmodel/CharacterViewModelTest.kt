@@ -1,26 +1,26 @@
 package com.example.rickandmortyapi.viewmodel
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import androidx.paging.testing.asSnapshot
+import androidx.paging.AsyncPagingDataDiffer
+import androidx.paging.PagingData
+import androidx.recyclerview.widget.ListUpdateCallback
 import com.example.rickandmortyapi.MainCoroutineRule
+import com.example.rickandmortyapi.adapter.CharacterAdapter
+import com.example.rickandmortyapi.data.listOfCharacters
 import com.example.rickandmortyapi.event.CharacterListEvent
-import com.example.rickandmortyapi.model.CharactersResponseEntity
 import com.example.rickandmortyapi.repositories.FakeRickMortyRepository
-import com.example.rickandmortyapi.util.Status
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.TestCoroutineScope
-import kotlinx.coroutines.test.runTest
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertTrue
+import com.example.rickandmortyapi.util.Constants
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.test.*
+import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
 @ExperimentalCoroutinesApi
+@RunWith(RobolectricTestRunner::class)
 class CharacterViewModelTest {
 
     // 1. All character fetched if search query is empty
@@ -29,163 +29,64 @@ class CharacterViewModelTest {
     @get:Rule
     var instantTaskExecutorRule = InstantTaskExecutorRule()
 
-    @get: Rule
+    @get:Rule
     var mainCoroutineRule = MainCoroutineRule()
 
-    private lateinit var sut: CharacterViewModel
     private lateinit var fakeRickMortyRepository: FakeRickMortyRepository
-    private val testDispatcher = StandardTestDispatcher()
-    private val testScope = TestCoroutineScope(testDispatcher)
-
-    private fun setShouldReturnNetwork(value: Boolean) {
-        fakeRickMortyRepository.setShouldReturnNetwork(value)
-    }
+    private lateinit var sut: CharacterViewModel
 
     @Before
     fun setUp() {
+        Dispatchers.setMain(Dispatchers.Unconfined)
         fakeRickMortyRepository = FakeRickMortyRepository()
+        fakeRickMortyRepository.setReturnValue(
+            flowOf(PagingData.from(listOfCharacters))
+        )
+        // Define the filtered list for a specific query (e.g., "Rick")
+        val filteredCharacters = listOfCharacters.filter { it.name.contains(Constants.CHARACTER_QUERY) }
+        fakeRickMortyRepository.setSearchResponse(Constants.CHARACTER_QUERY, filteredCharacters)
         sut = CharacterViewModel(fakeRickMortyRepository)
     }
-
     @Test
-    fun insertCharacterIntoDB() = runTest {
-        val characterID = 1
-        val character = CharactersResponseEntity(
-            id = characterID,
-            name = "Rick",
-            species = "Human",
-            gender = "Male",
-            origin = "Earth",
-            location = "Earth",
-            image = "rick.png",
-            created = "2023-10-18T12:34:56.789Z"
+    fun fetchAllCharactersIfSearchQueryIsEmpty() = runTest {
+        val differ = AsyncPagingDataDiffer(
+            diffCallback = CharacterAdapter.diffUtil,
+            updateCallback = ListUpdateTestCallback(),
+            workerDispatcher = Dispatchers.Main
         )
-        sut.insertCharacterIntoDB(character)
-        val resource = fakeRickMortyRepository.getCharacterById(characterID)
-        assertNotNull(resource)
-        assertEquals(Status.SUCCESS, resource.status)
-        val insertedCharacter = resource.data
-        assertNotNull(insertedCharacter)
-        assertEquals(characterID, insertedCharacter?.id)
+        // Collect the first item from charactersFlow
+        val pagingData = sut.charactersFlow.first()
+        differ.submitData(pagingData)
+        advanceUntilIdle()
+        assertEquals(listOfCharacters.map { it.id }, differ.snapshot().items.map { it.id })
     }
-
     @Test
-    fun deleteCharacters() = runTest {
-        val character1 =
-            CharactersResponseEntity(
-                id = 1,
-                name = "Rick",
-                species = "Human",
-                gender = "Male",
-                origin = "Earth",
-                location = "Earth",
-                image = "rick.png",
-                created = "2023-10-18T12:34:56.789Z"
-            )
-        val character2 = CharactersResponseEntity(
-            id = 2,
-            name = "Morty",
-            species = "Human",
-            gender = "Male",
-            origin = "Earth",
-            location = "Earth",
-            image = "morty.png",
-            created = "2023-10-19T12:34:56.789Z"
+    fun fetchCharacterIfSearchQueryIsPassed() = runTest {
+        // Set up the differ to handle the PagingData
+        val differ = AsyncPagingDataDiffer(
+            diffCallback = CharacterAdapter.diffUtil,
+            updateCallback = ListUpdateTestCallback(),
+            workerDispatcher = Dispatchers.Main
         )
-        sut.insertCharacterIntoDB(character1)
-        sut.insertCharacterIntoDB(character2)
-        sut.deleteCharacters()
+        // Set the search query in the ViewModel
+        sut.onEvent(CharacterListEvent.GetAllCharactersByName(Constants.CHARACTER_QUERY))
 
-        // Verify that characters have been deleted
-        val characterNameToDelete = "Rick"
-        val page = 1
-        val characters = fakeRickMortyRepository.getCharacters(characterNameToDelete, page)
-        assertTrue(characters.status == Status.ERROR)
-        assertEquals("No characters found", characters.message)
+        
+        // Collect from charactersFlow and submit to the differ
+        val pagingData = sut.charactersFlow.first()
+        differ.submitData(pagingData)
+        advanceUntilIdle()
+
+        // Check if the filtered list only contains characters with the name "Rick"
+        val expectedIds = listOfCharacters.filter { it.name.contains(Constants.CHARACTER_QUERY)}.map { it.name }
+        assertEquals(expectedIds, differ.snapshot().items.map { it.name })
     }
-
-    //Success Test Case
-    @Test
-    fun `getCharacter Success`() = testScope.run {
-        val imageQuery = "Rick"
-        val page = 1
-        sut.getCharacters(imageQuery, page)
-        sut.updatedResource.observeForever { resources ->
-            assertEquals(Status.SUCCESS, resources.status)
-            assertNotNull(resources.data)
-        }
-    }
-
-    @Test
-    fun `getCharacter Error`() = testScope.run {
-        val imageQuery = "Rick"
-        val page = 1
-        sut.getCharacters(imageQuery, page)
-        sut.updatedResource.observeForever { resource ->
-            assertEquals(Status.ERROR, resource.status)
-            assertNotNull(resource.data)
-        }
-    }
-
-    //  verify how your ViewModel handles an error scenario where
-    //  .....the repository does not return a network error
-    // ... but still produces an error in the response.
-    // (focuses on how your ViewModel handles non-network errors
-    // that may arise during the data retrieval process. )
-    @Test
-    fun `getCharacter No Error`() = testScope.run {
-        val imageQuery = "Rick"
-        val page = 1
-        setShouldReturnNetwork(false)
-        sut.getCharacters(imageQuery, page)
-        sut.updatedResource.observeForever { resource ->
-            assertEquals(Status.SUCCESS, resource.status)
-            assertNotNull(resource.data)
-        }
-    }
-
-    //Having Error with the below TestCase (This job has not completed yet ERROR!)
-    @Test
-    fun testGetCharacterByName() = runTest {
-        val characterName = "Rick"
-        val character1 = CharactersResponseEntity(
-            id = 1,
-            name = "Rick",
-            species = "Human",
-            gender = "Male",
-            origin = "Earth",
-            location = "Earth",
-            image = "rick.png",
-            created = "2023-10-18T12:34:56.789Z"
-        )
-        val character2 = CharactersResponseEntity(
-            id = 2,
-            name = "Morty",
-            species = "Human",
-            gender = "Male",
-            origin = "Earth",
-            location = "Earth",
-            image = "morty.png",
-            created = "2023-10-19T12:34:56.789Z"
-        )
-        val character3 = CharactersResponseEntity(
-            id = 3,
-            name = "Rick",
-            species = "Human",
-            gender = "Male",
-            origin = "Earth",
-            location = "Earth",
-            image = "rick2.png",
-            created = "2023-10-20T12:34:56.789Z"
-        )
-        // Insert characters with matching name
-        sut.insertCharacterIntoDB(character1)
-        sut.insertCharacterIntoDB(character3)
-
-        // Insert a character with a different name
-        sut.insertCharacterIntoDB(character2)
-
-        // Assert that characters contain expected items
-        assertEquals(expected, character3)
+    class ListUpdateTestCallback : ListUpdateCallback {
+        override fun onInserted(position: Int, count: Int) {}
+        override fun onRemoved(position: Int, count: Int) {}
+        override fun onMoved(fromPosition: Int, toPosition: Int) {}
+        override fun onChanged(position: Int, count: Int, payload: Any?) {}
     }
 }
+
+

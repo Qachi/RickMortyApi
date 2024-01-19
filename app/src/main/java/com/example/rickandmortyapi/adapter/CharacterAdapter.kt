@@ -6,12 +6,12 @@ import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.example.rickandmortyapi.databinding.ItemListBinding
-import com.example.rickandmortyapi.model.Character
+import com.example.rickandmortyapi.model.CharactersResponseEntity
 import com.squareup.picasso.Picasso
 
 class CharacterAdapter(
     private val clickListener: OnCharacterClickListener
-) : PagingDataAdapter<Character, CharacterAdapter.MyViewHolder>(diffUtil) {
+) : PagingDataAdapter<CharactersResponseEntity, CharacterAdapter.MyViewHolder>(diffUtil) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
         val binding = ItemListBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -25,12 +25,11 @@ class CharacterAdapter(
 
     inner class MyViewHolder(private val binding: ItemListBinding) :
         RecyclerView.ViewHolder(binding.root) {
-        fun initialize(character: Character) {
+        fun initialize(character: CharactersResponseEntity) {
             binding.apply {
                 nameTxt.text = character.name
                 speciesTxt.text = character.species
                 genderTxt.text = character.gender
-
                 Picasso.get()
                     .load(character.image)
                     .into(userAvatar)
@@ -43,17 +42,17 @@ class CharacterAdapter(
 
     companion object {
 
-        val diffUtil = object : DiffUtil.ItemCallback<Character>() {
+        val diffUtil = object : DiffUtil.ItemCallback<CharactersResponseEntity>() {
             override fun areItemsTheSame(
-                oldItem: Character,
-                newItem: Character
+                oldItem: CharactersResponseEntity,
+                newItem: CharactersResponseEntity
             ): Boolean {
                 return oldItem.name == newItem.name
             }
 
             override fun areContentsTheSame(
-                oldItem: Character,
-                newItem: Character
+                oldItem: CharactersResponseEntity,
+                newItem: CharactersResponseEntity
             ): Boolean {
                 return oldItem.name == newItem.name
             }
@@ -61,6 +60,6 @@ class CharacterAdapter(
     }
 
     interface OnCharacterClickListener {
-        fun itemClicked(character: Character, position: Int)
+        fun itemClicked(character: CharactersResponseEntity, position: Int)
     }
 }

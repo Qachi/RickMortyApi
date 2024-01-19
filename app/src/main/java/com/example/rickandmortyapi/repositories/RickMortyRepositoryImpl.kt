@@ -1,33 +1,26 @@
 package com.example.rickandmortyapi.repositories
 
-import androidx.paging.ExperimentalPagingApi
-import androidx.paging.Pager
-import androidx.paging.PagingConfig
-import androidx.paging.PagingData
-import androidx.paging.map
+import androidx.paging.*
 import com.example.rickandmortyapi.api.RickMortyApi
 import com.example.rickandmortyapi.dao.RickMortyDao
 import com.example.rickandmortyapi.database.RickMortyDatabase
-import com.example.rickandmortyapi.model.Character
-import com.example.rickandmortyapi.model.CharactersResponseDto
 import com.example.rickandmortyapi.model.CharactersResponseEntity
 import com.example.rickandmortyapi.remote.RickyMortyRemoteMediator
 import com.example.rickandmortyapi.util.Resource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @OptIn(ExperimentalPagingApi::class)
 class RickMortyRepositoryImpl @Inject constructor(
     private val rickMortyDao: RickMortyDao,
     private val rickMortyApi: RickMortyApi,
-    private val rickMortyDatabase: RickMortyDatabase
+    private val rickMortyDatabase: RickMortyDatabase,
 ) : RickMortyRepository {
 
-    override suspend fun getCharacterByName(characterName: String): Flow<PagingData<Character>> {
+    override suspend fun getCharacterByName(characterName: String): Flow<PagingData<CharactersResponseEntity>> {
         val rickMortyPagingSource =
             { rickMortyDatabase.getRickMortyDao().getCharactersByName(characterName) }
         return Pager(
@@ -45,38 +38,49 @@ class RickMortyRepositoryImpl @Inject constructor(
                 characterName
             ),
             pagingSourceFactory = rickMortyPagingSource
-        ).flow.map { characterEntityPagingData ->
+        ).flow
+            //            .flowOn(dispatcher)
+            .map { characterEntityPagingData ->
             characterEntityPagingData.map { characterEntity ->
-                characterEntity.toCharacter()
+                CharactersResponseEntity(
+                    id = characterEntity.id,
+                    name = characterEntity.name,
+                    species = characterEntity.species,
+                    gender = characterEntity.gender,
+                    origin = characterEntity.origin,
+                    location = characterEntity.location,
+                    image = characterEntity.image,
+                    created = characterEntity.created
+                )
             }
         }
     }
 
-    override suspend fun getCharacters(
-        imageQuery: String,
-        page: Int
-    ): Resource<CharactersResponseDto> {
-        return try {
-            val response = rickMortyApi.getCharacters(imageQuery, page)
-            if (response.isSuccessful) {
-                response.body().let {
-                    return@let Resource.success(it)
+    override suspend fun getCharacterById(id: Int): Resource<CharactersResponseEntity> {
+        return withContext(Dispatchers.IO) {
+            try {
+                // First, try to fetch the character from the database
+                val characterFromDb = rickMortyDatabase.getRickMortyDao().getCharacterById(id)
+                if (characterFromDb != null) {
+                    // If found in the database, return it
+                    Resource.success(characterFromDb)
+                } else {
+                    // If not found in the database, try the network call
+                    val response = rickMortyApi.getCharacterById(id)
+                    if (response.isSuccessful) {
+                        // If network call is successful, save to database and return
+                        val characterFromNetwork = response.body()!!
+                        rickMortyDatabase.getRickMortyDao().insertCharacter(characterFromNetwork)
+                        Resource.success(characterFromNetwork)
+                    } else {
+                        // If network call fails, return error
+                        Resource.error("Error fetching character with ID: $id", null)
+                    }
                 }
-            } else {
-                Resource.error("An unknown error occurred", null)
+            } catch (e: Exception) {
+                // Handle any exceptions
+                Resource.error("Exception occurred: ${e.message}", null)
             }
-
-        } catch (e: Exception) {
-            Resource.error("Couldn't reach the server. Check your internet connection", null)
-        }
-    }
-
-    override fun getCharacterById(id: Int): Resource<CharactersResponseEntity> {
-        val character = rickMortyDao.getCharacterById(id)
-        return if (character != null) {
-            Resource.success(character)
-        } else {
-            Resource.error("Character not found", null)
         }
     }
 
@@ -86,20 +90,6 @@ class RickMortyRepositoryImpl @Inject constructor(
 
     override suspend fun deleteCharacters() {
         rickMortyDao.deleteCharacters()
-    }
-
-    fun getCharacter(id: Int): Flow<CharactersResponseEntity> {
-        return flow {
-            val rickMortyPagingSource = rickMortyDatabase.getRickMortyDao().getCharacter(id)
-            if (rickMortyPagingSource != null) {
-                emit(rickMortyPagingSource)
-
-            } else {
-                val character = rickMortyApi.getCharacterById(id).body()
-                emit(character!!)
-                rickMortyDatabase.getRickMortyDao().insertCharacter(character)
-            }
-        }.flowOn(Dispatchers.IO)
     }
 }
 

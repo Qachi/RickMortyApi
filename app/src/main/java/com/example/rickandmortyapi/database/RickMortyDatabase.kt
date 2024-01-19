@@ -13,7 +13,6 @@ import com.example.rickandmortyapi.model.CharactersResponseRemoteKey
     version = 6,
     exportSchema = false
 )
-
 abstract class RickMortyDatabase : RoomDatabase() {
 
     abstract fun getRickMortyDao(): RickMortyDao

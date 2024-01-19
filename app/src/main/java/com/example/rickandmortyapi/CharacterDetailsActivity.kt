@@ -1,10 +1,15 @@
 package com.example.rickandmortyapi
 
+import android.content.ContentValues.TAG
 import android.os.Bundle
+import android.util.Log
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.example.rickandmortyapi.databinding.ActivityCharacterDetailsBinding
+import com.example.rickandmortyapi.util.Constants
+import com.example.rickandmortyapi.util.Status
 import com.example.rickandmortyapi.viewmodel.CharacterDetailsViewModel
 import com.squareup.picasso.Picasso
 import dagger.hilt.android.AndroidEntryPoint
@@ -15,7 +20,7 @@ import kotlinx.coroutines.flow.collectLatest
 class CharacterDetailsActivity : AppCompatActivity() {
 
     private val viewModel by viewModels<CharacterDetailsViewModel>()
-    private val id by lazy { intent.extras!!.getInt("CHARACTERS") } //Extract as constant
+    private val id by lazy { intent.extras!!.getInt(Constants.CHARACTERS) }
     private lateinit var binding: ActivityCharacterDetailsBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,18 +36,30 @@ class CharacterDetailsActivity : AppCompatActivity() {
         setActionBar()
         lifecycleScope.launchWhenCreated {
             viewModel.getCharacterById(id).catch {
-
-            }.collectLatest {
-                binding.nameTxt.text = it.name
-                binding.speciesTxt.text = it.species
-                binding.genderTxt.text = it.gender
-                binding.originTxt.text = it.origin
-                binding.locationTxt.text = it.location
-                binding.createdTxt.text = it.created
-                Picasso.get().load(it.image).into(binding.userAvatar)
-                supportActionBar?.title = it.name
+                // Handle errors if needed
+            }.collectLatest { resource ->
+                when (resource.status) {
+                  Status.SUCCESS -> {
+                        val character = resource.data
+                        binding.nameTxt.text = character?.name
+                        binding.speciesTxt.text = character?.species
+                        binding.genderTxt.text = character?.gender
+                        binding.originTxt.text = character?.origin
+                        binding.locationTxt.text = character?.location
+                        binding.createdTxt.text = character?.created
+                        Picasso.get().load(character?.image).into(binding.userAvatar)
+                        supportActionBar?.title = character?.name
+                    }
+                    Status.ERROR -> {
+                        // Handle the error case
+                        Toast.makeText(this@CharacterDetailsActivity, resource.message, Toast.LENGTH_LONG).show()
+                    }
+                    Status.LOADING -> {
+                        // Handle the loading state if applicable
+                        Log.d(TAG, "Loading person data...")
+                    }
+                }
             }
-
         }
     }
 

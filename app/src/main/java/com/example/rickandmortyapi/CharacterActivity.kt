@@ -2,13 +2,13 @@ package com.example.rickandmortyapi
 
 import android.content.Intent
 import android.graphics.Color
-import android.net.ConnectivityManager
-import android.net.NetworkInfo
+import android.os.Build
 import android.os.Bundle
 import android.view.Menu
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.lifecycleScope
@@ -17,7 +17,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.rickandmortyapi.adapter.CharacterAdapter
 import com.example.rickandmortyapi.databinding.ActivityCharacterBinding
 import com.example.rickandmortyapi.event.CharacterListEvent
-import com.example.rickandmortyapi.model.Character
+import com.example.rickandmortyapi.model.CharactersResponseEntity
+import com.example.rickandmortyapi.util.Constants.EXTRA_CHARACTERS
+import com.example.rickandmortyapi.util.NetworkUtils
 import com.example.rickandmortyapi.util.onQueryTextChanged
 import com.example.rickandmortyapi.viewmodel.CharacterViewModel
 import com.google.android.material.snackbar.Snackbar
@@ -26,6 +28,7 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 
 @AndroidEntryPoint
+@RequiresApi(Build.VERSION_CODES.M)
 class CharacterActivity : AppCompatActivity(), CharacterAdapter.OnCharacterClickListener {
 
     private val viewModel by viewModels<CharacterViewModel>()
@@ -55,19 +58,14 @@ class CharacterActivity : AppCompatActivity(), CharacterAdapter.OnCharacterClick
         lifecycleScope.launchWhenCreated {
             viewModel.charactersFlow.catch {
                 showNetworkErrorIfRequired()
-            }.collectLatest {
-                myAdapter.submitData(it)
+            }.collectLatest {pagingData ->
+                myAdapter.submitData(pagingData)
             }
         }
     }
 
-    // Try to keep logic outside main activity
     private fun showNetworkErrorIfRequired() {
-        val connectionManager = this.getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
-        val activeNetwork: NetworkInfo? = connectionManager.activeNetworkInfo
-        val isConnected: Boolean = activeNetwork?.isConnectedOrConnecting == true
-
-        if (isConnected) {
+        if (NetworkUtils.isConnected(this)) {
             setUpRecyclerView()
             initViewModel()
         } else {
@@ -80,10 +78,10 @@ class CharacterActivity : AppCompatActivity(), CharacterAdapter.OnCharacterClick
     private fun snackBar() {
         val snackBar = Snackbar.make(
             findViewById(R.id.frameLayout),
-            "PlEASE CHECK NETWORK CONNECTION", // Extract as string resource
+            getString(R.string.network_connection),
             Toast.LENGTH_SHORT
         )
-            .setAction("Ok") {// Extract as string resource
+            .setAction(getString(R.string.ok)) {
 
             }
             .setActionTextColor(Color.WHITE)
@@ -94,7 +92,7 @@ class CharacterActivity : AppCompatActivity(), CharacterAdapter.OnCharacterClick
         snackBar.show()
     }
 
-    override fun itemClicked(character: Character, position: Int) {
+    override fun itemClicked(character: CharactersResponseEntity, position: Int) {
         val intent = Intent(this, CharacterDetailsActivity::class.java)
         intent.putExtra(EXTRA_CHARACTERS, character.id)
         startActivity(intent)
@@ -104,7 +102,7 @@ class CharacterActivity : AppCompatActivity(), CharacterAdapter.OnCharacterClick
         menuInflater.inflate(R.menu.menu_fragment, menu)
         val searchItem = menu?.findItem(R.id.search_View)
         val searchView = searchItem?.actionView as SearchView
-        searchView.queryHint = "Type a character name" // Extract as string resource
+        searchView.queryHint = getString(R.string.character_name)
         searchView.onQueryTextChanged {
             performSearchEvent(it)
         }
@@ -114,10 +112,6 @@ class CharacterActivity : AppCompatActivity(), CharacterAdapter.OnCharacterClick
 
     private fun performSearchEvent(characterName: String) {
         viewModel.onEvent(CharacterListEvent.GetAllCharactersByName(characterName))
-    }
-
-    companion object {
-        private const val EXTRA_CHARACTERS = "CHARACTERS"
     }
 }
 

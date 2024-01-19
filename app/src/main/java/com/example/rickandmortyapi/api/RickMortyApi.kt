@@ -8,7 +8,6 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface RickMortyApi {
-
     @GET("character")
     suspend fun getCharacters(
         @Query("name") name: String,

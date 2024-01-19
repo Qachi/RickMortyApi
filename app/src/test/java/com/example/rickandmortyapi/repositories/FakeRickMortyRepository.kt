@@ -1,26 +1,23 @@
 package com.example.rickandmortyapi.repositories
 
-import androidx.paging.Pager
-import androidx.paging.PagingConfig
 import androidx.paging.PagingData
-import androidx.paging.PagingSource
-import androidx.paging.PagingState
-import androidx.paging.map
-import com.example.rickandmortyapi.model.Character
-import com.example.rickandmortyapi.model.CharactersResponseDto
 import com.example.rickandmortyapi.model.CharactersResponseEntity
-import com.example.rickandmortyapi.model.InfoDto
 import com.example.rickandmortyapi.util.Resource
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.flowOf
 
 class FakeRickMortyRepository : RickMortyRepository {
 
     private val rickMortyCharacters = mutableListOf<CharactersResponseEntity>()
-    private var shouldReturnNetwork = false
+    private var charactersFlow: Flow<PagingData<CharactersResponseEntity>> = flowOf()
+    private var filteredData: MutableMap<String, List<CharactersResponseEntity>> = mutableMapOf()
 
-    fun setShouldReturnNetwork(value: Boolean) {
-        shouldReturnNetwork = value
+    fun setReturnValue(returnValue: Flow<PagingData<CharactersResponseEntity>>) {
+        charactersFlow = returnValue
+    }
+
+    fun setSearchResponse(query: String, filteredResults: List<CharactersResponseEntity>) {
+        filteredData[query] = filteredResults
     }
 
     override suspend fun insertCharacter(character: CharactersResponseEntity) {
@@ -31,70 +28,15 @@ class FakeRickMortyRepository : RickMortyRepository {
         rickMortyCharacters.clear()
     }
 
-    override suspend fun getCharacterByName(characterName: String): Flow<PagingData<Character>> {
-        val pagingSource = object : PagingSource<Int, CharactersResponseEntity>() {
-            override suspend fun load(params: LoadParams<Int>): LoadResult<Int, CharactersResponseEntity> {
-                try {
-                    // Filter characters by name from the list
-                    val characters = rickMortyCharacters.filter { it.name == characterName }
-
-                    // You may need to implement paging logic based on params (e.g., page size)
-                    val prevKey = null
-                    val nextKey = null
-
-                    return LoadResult.Page(
-                        data = characters,
-                        prevKey = prevKey,
-                        nextKey = nextKey
-                    )
-                } catch (e: Exception) {
-                    return LoadResult.Error(e)
-                }
-            }
-
-            override fun getRefreshKey(state: PagingState<Int, CharactersResponseEntity>): Int? {
-                // You may implement this if necessary
-                return null
-            }
-        }
-
-        return Pager(
-            config = PagingConfig(pageSize = 10, prefetchDistance = 5),
-            pagingSourceFactory = { pagingSource }
-        ).flow.map { characterEntityPagingData ->
-            characterEntityPagingData.map { characterEntity ->
-                characterEntity.toCharacter()
-            }
-        }
-    }
-
-    override suspend fun getCharacters(
-        imageQuery: String,
-        page: Int
-    ): Resource<CharactersResponseDto> {
-        return if (shouldReturnNetwork) {
-            Resource.error("Error", null)
+    override suspend fun getCharacterByName(characterName: String): Flow<PagingData<CharactersResponseEntity>> {
+        return if (characterName.isEmpty()) {
+            charactersFlow
         } else {
-            val characters = rickMortyCharacters.filter { it.name == imageQuery }
-            return if (characters.isEmpty()) {
-                Resource.error("No characters found", null)
-            } else {
-                Resource.success(
-                    CharactersResponseDto(
-                        info = InfoDto(
-                            0,
-                            0,
-                            null,
-                            null
-                        ),
-                        listOf()
-                    )
-                )
-            }
+            flowOf(PagingData.from(filteredData[characterName] ?: emptyList()))
         }
     }
 
-    override fun getCharacterById(id: Int): Resource<CharactersResponseEntity> {
+    override suspend fun getCharacterById(id: Int): Resource<CharactersResponseEntity> {
         val fakeCharacter = CharactersResponseEntity(
             id = 1,
             name = "Rick",
@@ -108,3 +50,4 @@ class FakeRickMortyRepository : RickMortyRepository {
         return Resource.success(fakeCharacter)
     }
 }
+
