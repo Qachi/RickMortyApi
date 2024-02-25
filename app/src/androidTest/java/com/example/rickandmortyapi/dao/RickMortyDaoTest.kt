@@ -1,7 +1,6 @@
 package com.example.rickandmortyapi.dao
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import androidx.paging.PagingSource
 import com.example.rickandmortyapi.database.RickMortyDatabase
 import com.example.rickandmortyapi.model.CharactersResponseEntity
 import dagger.hilt.android.testing.HiltAndroidRule
@@ -9,7 +8,6 @@ import dagger.hilt.android.testing.HiltAndroidTest
 import junit.framework.TestCase.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule

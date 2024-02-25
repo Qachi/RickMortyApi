@@ -16,4 +16,4 @@ data class CharactersResponseEntity(
     val location: String,
     val image: String,
     val created: String,
-):Parcelable
+) : Parcelable

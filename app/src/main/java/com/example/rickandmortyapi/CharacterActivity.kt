@@ -58,7 +58,7 @@ class CharacterActivity : AppCompatActivity(), CharacterAdapter.OnCharacterClick
         lifecycleScope.launchWhenCreated {
             viewModel.charactersFlow.catch {
                 showNetworkErrorIfRequired()
-            }.collectLatest {pagingData ->
+            }.collectLatest { pagingData ->
                 myAdapter.submitData(pagingData)
             }
         }

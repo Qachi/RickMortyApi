@@ -1,6 +1,10 @@
 package com.example.rickandmortyapi.repositories
 
-import androidx.paging.*
+import androidx.paging.ExperimentalPagingApi
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.map
 import com.example.rickandmortyapi.api.RickMortyApi
 import com.example.rickandmortyapi.dao.RickMortyDao
 import com.example.rickandmortyapi.database.RickMortyDatabase
@@ -41,19 +45,19 @@ class RickMortyRepositoryImpl @Inject constructor(
         ).flow
             //            .flowOn(dispatcher)
             .map { characterEntityPagingData ->
-            characterEntityPagingData.map { characterEntity ->
-                CharactersResponseEntity(
-                    id = characterEntity.id,
-                    name = characterEntity.name,
-                    species = characterEntity.species,
-                    gender = characterEntity.gender,
-                    origin = characterEntity.origin,
-                    location = characterEntity.location,
-                    image = characterEntity.image,
-                    created = characterEntity.created
-                )
+                characterEntityPagingData.map { characterEntity ->
+                    CharactersResponseEntity(
+                        id = characterEntity.id,
+                        name = characterEntity.name,
+                        species = characterEntity.species,
+                        gender = characterEntity.gender,
+                        origin = characterEntity.origin,
+                        location = characterEntity.location,
+                        image = characterEntity.image,
+                        created = characterEntity.created
+                    )
+                }
             }
-        }
     }
 
     override suspend fun getCharacterById(id: Int): Resource<CharactersResponseEntity> {

@@ -39,7 +39,7 @@ class CharacterDetailsActivity : AppCompatActivity() {
                 // Handle errors if needed
             }.collectLatest { resource ->
                 when (resource.status) {
-                  Status.SUCCESS -> {
+                    Status.SUCCESS -> {
                         val character = resource.data
                         binding.nameTxt.text = character?.name
                         binding.speciesTxt.text = character?.species
@@ -50,10 +50,16 @@ class CharacterDetailsActivity : AppCompatActivity() {
                         Picasso.get().load(character?.image).into(binding.userAvatar)
                         supportActionBar?.title = character?.name
                     }
+
                     Status.ERROR -> {
                         // Handle the error case
-                        Toast.makeText(this@CharacterDetailsActivity, resource.message, Toast.LENGTH_LONG).show()
+                        Toast.makeText(
+                            this@CharacterDetailsActivity,
+                            resource.message,
+                            Toast.LENGTH_LONG
+                        ).show()
                     }
+
                     Status.LOADING -> {
                         // Handle the loading state if applicable
                         Log.d(TAG, "Loading person data...")

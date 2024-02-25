@@ -49,9 +49,8 @@ class RickyMortyRemoteMediator(
             val endOfPagination = response.body()?.results?.size!! < state.config.pageSize
 
             if (response.isSuccessful) {
-                response.body().let {
+                response.body()?.let {
                     if (loadType == LoadType.REFRESH) {
-
                         rickyMortyDatabase.getRickMortyDao().deleteCharacters()
                         rickyMortyDatabase.getRickyMortyRemoteKeyDao().deleteCharacter()
                     }

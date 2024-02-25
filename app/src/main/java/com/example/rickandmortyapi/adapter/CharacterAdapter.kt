@@ -25,8 +25,9 @@ class CharacterAdapter(
 
     inner class MyViewHolder(private val binding: ItemListBinding) :
         RecyclerView.ViewHolder(binding.root) {
+
         fun initialize(character: CharactersResponseEntity) {
-            binding.apply {
+            with(binding) {
                 nameTxt.text = character.name
                 speciesTxt.text = character.species
                 genderTxt.text = character.gender
