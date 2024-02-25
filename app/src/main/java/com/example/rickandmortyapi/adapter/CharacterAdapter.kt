@@ -55,6 +55,7 @@ class CharacterAdapter(
                 oldItem: Character,
                 newItem: Character
             ): Boolean {
+
                 return oldItem.name == newItem.name
             }
         }
