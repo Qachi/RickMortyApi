@@ -12,7 +12,6 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
 
-
         defaultConfig {
             applicationId "com.example.rickandmortyapi"
             minSdkVersion 21
@@ -113,6 +112,7 @@ android {
         api 'androidx.room:room-runtime:2.5.0-beta02'
         kapt 'androidx.room:room-compiler:2.5.0-beta02'
     }
+    namespace 'com.example.rickandmortyapi'
     configurations.all {
         resolutionStrategy {
             force 'androidx.core:core-ktx:1.6.0'
