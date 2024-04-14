@@ -6,4 +6,7 @@
     <string name="genderTxt">TEXTVIEW</string>
     <string name="speciesTxt">TEXTVIEW</string>
     <string name="nameTxt">TEXTVIEW</string>
+    <string name="network_connection">PlEASE CHECK NETWORK CONNECTION</string>
+    <string name="ok">Ok</string>
+    <string name="character_name">Type a character name</string>
 </resources>

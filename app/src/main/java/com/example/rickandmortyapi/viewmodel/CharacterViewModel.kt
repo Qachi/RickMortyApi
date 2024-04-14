@@ -1,28 +1,24 @@
 package com.example.rickandmortyapi.viewmodel
 
-import androidx.lifecycle.*
+import androidx.lifecycle.ViewModel
 import com.example.rickandmortyapi.event.CharacterListEvent
-import com.example.rickandmortyapi.repository.RickMortyRepository
+import com.example.rickandmortyapi.repositories.RickMortyRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flatMapLatest
 import javax.inject.Inject
 
 @HiltViewModel
+@OptIn(ExperimentalCoroutinesApi::class)
 class CharacterViewModel @Inject constructor(
     private val repository: RickMortyRepository
 ) : ViewModel() {
-
 
     private val searchQuery = MutableStateFlow("")
     val charactersFlow = searchQuery.flatMapLatest {
         repository.getCharacterByName(it)
     }
-
-
-    private var searchJob: Job? = null
 
     fun onEvent(event: CharacterListEvent) {
         when (event) {
@@ -30,17 +26,7 @@ class CharacterViewModel @Inject constructor(
         }
     }
 
-
-    private fun getCharactersByName(character: String) {
-        repository.getCharacterByName(character)
-    }
-
     private fun onSearch(query: String) {
         searchQuery.value = query
-        searchJob?.cancel()
-        searchJob = viewModelScope.launch {
-            delay(500)
-            getCharactersByName(query)
-        }
     }
 }

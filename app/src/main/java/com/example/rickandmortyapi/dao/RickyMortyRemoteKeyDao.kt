@@ -13,9 +13,8 @@ interface RickyMortyRemoteKeyDao {
     suspend fun insertCharactersRemoteKey(list: List<CharactersResponseRemoteKey>)
 
     @Query("SELECT * FROM CharactersResponseRemoteKey WHERE id = :id")
-    suspend fun getCharactersRemoteKey(id: Int) : CharactersResponseRemoteKey
+    suspend fun getCharactersRemoteKey(id: Int): CharactersResponseRemoteKey
 
     @Query("DELETE FROM CharactersResponseRemoteKey")
     suspend fun deleteCharacter()
-
 }

@@ -5,5 +5,4 @@ data class InfoDto(
     val pages: Int,
     val next: String?,
     val prev: String?
-
 )

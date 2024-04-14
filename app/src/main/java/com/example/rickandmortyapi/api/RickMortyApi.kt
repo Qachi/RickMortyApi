@@ -8,13 +8,12 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface RickMortyApi {
-
     @GET("character")
-    suspend fun getCharacters(@Query("page") page: Int): Response<CharactersResponseDto>
-
+    suspend fun getCharacters(
+        @Query("name") name: String,
+        @Query("page") page: Int
+    ): Response<CharactersResponseDto>
 
     @GET("character/{id}")
     suspend fun getCharacterById(@Path("id") id: Int): Response<CharactersResponseEntity>
-
-
 }

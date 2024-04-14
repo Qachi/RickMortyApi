@@ -10,7 +10,6 @@ data class CharactersDto(
     val image: String,
     val created: String,
 ) {
-
     fun toCharactersResponseEntity() = CharactersResponseEntity(
         id = id,
         name = name,

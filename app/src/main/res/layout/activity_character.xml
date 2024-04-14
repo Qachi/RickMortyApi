@@ -11,10 +11,10 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         android:layout_height="wrap_content"
-        tools:listitem="@layout/item_list"
-        tools:ignore="MissingConstraints" />
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        tools:ignore="MissingConstraints"
+        tools:listitem="@layout/item_list" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
