@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
@@ -39,6 +41,24 @@ android {
         }
         kapt {
             correctErrorTypes true
+        }
+//To resolve 'compileDebugJavaWithJavac' task (current target is 1.8) and
+// 'kaptGenerateStubsDebugKotlin' task (current target is 17)
+        sourceSets {
+            main {
+                java.srcDirs("src/main/java")
+                kotlin.srcDirs("src/main/kotlin")
+            }
+        }
+
+//To resolve 'compileDebugJavaWithJavac' task (current target is 1.8) and
+// 'kaptGenerateStubsDebugKotlin' task (current target is 17)
+        tasks.withType(KotlinCompile).configureEach {
+            configure {
+                kotlinOptions {
+                    jvmTarget = '1.8'
+                }
+            }
         }
     }
 
